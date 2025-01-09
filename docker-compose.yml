@@ -1,0 +1,75 @@
+services:
+  # image project
+  micro_auth_sso:
+    build:
+      args:
+        user: milena
+        uid: 1000
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    # depends_on:
+    #   - micro_auth_redis
+    networks:
+      - micro_auth_sso_network
+      - shared_network
+
+  # nginx
+  micro_auth_sso_nginx:
+    image: nginx:alpine
+    ports:
+      - "8081:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/:/etc/nginx/conf.d/
+    networks:
+      - micro_auth_sso_network
+
+  # db mysql
+  db_micro_auth_sso:
+    image: mysql:8.0
+    platform: linux/x86_64
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-userpass}
+      MYSQL_USER: ${DB_USERNAME:-username}
+    volumes:
+      - ./.docker/mysql/dbdata:/var/lib/mysql
+    ports:
+      - "3301:3306"
+    networks:
+      - micro_auth_sso_network
+
+  # redis
+  # micro_auth_redis:
+  #   image: redis:latest
+  #   ports:
+  #     - "6373:6379"
+  #   networks:
+  #     - micro_auth_sso_network
+
+  # queue
+  # micro_auth_queue:
+  #   build:
+  #     args:
+  #       user: milena
+  #       uid: 1000
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   # command: "php artisan queue:work"
+  #   volumes:
+  #     - ./:/var/www
+  #   depends_on:
+  #     - micro_auth_redis
+  #   networks:
+  #     - micro_auth_sso_network
+  #     - shared_network
+
+networks:
+  micro_auth_sso_network:
+    driver: bridge
+  shared_network:
+    external: true
