@@ -16,13 +16,14 @@ Route::get('/auth/{provider}/redirect', function (string $provider) {
 
 Route::get('/auth/{provider}/callback', function (string $provider) {
     $providerUser = Socialite::driver($provider)->user();
+    dd($providerUser);
 
     $user = User::updateOrCreate([
         'email' => $providerUser->email,
     ], [
-        'provider_id' => $providerUser->id,
         'provider_name' => $provider,
         'name' => $providerUser->name,
+        'provider_id' => $providerUser->id,
         'provider_nickname' => $providerUser->nickname,
         'provider_avatar' => $providerUser->avatar,
         'provider_token' => $providerUser->token,
@@ -39,21 +40,7 @@ Route::get('/me', function() {
 
     $user = Auth::user();
 
-    return response()->json([
-        "id" => $user->id,
-        "name" => $user->name,
-        "email" => $user->email,
-        "email_verified_at" => $user->email_verified_at,
-        "password" => $user->password,
-        "provider_id" => $user->provider_id,
-        "provider_name" => $user->provider_name,
-        "provider_nickname" => $user->provider_nickname,
-        "provider_avatar" => $user->provider_avatar,
-        "id_token" => $user->id_token,
-        "provider_token" => $user->provider_token,
-        "provider_refresh_token" => $user->provider_refresh_token,
-        "remember_token" => $user->remember_token,
-    ], 200);
+    return response()->json(['data' => $user], 200);
 
 });
 
