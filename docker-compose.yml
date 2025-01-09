@@ -1,7 +1,7 @@
 services:
   # image project
-  micro_auth_sso:
-    container_name: micro_auth_sso
+  micro_auth:
+    container_name: micro_auth
     build:
       args:
         user: milena
@@ -14,26 +14,26 @@ services:
     # depends_on:
     #   - micro_auth_redis
     networks:
-      - micro_auth_sso_network
+      - micro_auth_network
       - keycloak_network
 
   # nginx
-  micro_auth_sso_nginx:
+  micro_auth_nginx:
     image: nginx:alpine
-    container_name: nginx_micro_auth_sso
+    container_name: nginx_micro_auth
     ports:
       - "8083:80"
     volumes:
       - ./:/var/www
       - ./docker/nginx/:/etc/nginx/conf.d/
     networks:
-      - micro_auth_sso_network
+      - micro_auth_network
 
   # db mysql
-  db_micro_auth_sso:
+  db_micro_auth:
     image: mysql:8.0
     platform: linux/x86_64
-    container_name: db_micro_auth_sso
+    container_name: db_micro_auth
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-laravel}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
@@ -44,7 +44,7 @@ services:
     ports:
       - "3303:3306"
     networks:
-      - micro_auth_sso_network
+      - micro_auth_network
 
   # redis
   # micro_auth_redis:
@@ -52,7 +52,7 @@ services:
   #   ports:
   #     - "6373:6379"
   #   networks:
-  #     - micro_auth_sso_network
+  #     - micro_auth_network
 
   # queue
   # micro_auth_queue:
@@ -68,12 +68,12 @@ services:
   #   depends_on:
   #     - micro_auth_redis
   #   networks:
-  #     - micro_auth_sso_network
+  #     - micro_auth_network
   #     - shared_network
 
 networks:
-  micro_auth_sso_network:
+  micro_auth_network:
     driver: bridge
-    name: micro_auth_sso_network
+    name: micro_auth_network
   keycloak_network:
     external: true
