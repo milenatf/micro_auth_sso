@@ -15,6 +15,7 @@ services:
     #   - micro_auth_redis
     networks:
       - micro_auth_sso_network
+      - keycloak_network
 
   # nginx
   micro_auth_sso_nginx:
@@ -74,3 +75,5 @@ networks:
   micro_auth_sso_network:
     driver: bridge
     name: micro_auth_sso_network
+  keycloak_network:
+    external: true
