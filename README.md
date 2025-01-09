@@ -83,6 +83,7 @@ Acessar a aplicação
 
 ⚠️ Estas configurações devem ser aplicadas de acordo com a realidade do projeto
 
+- Acessar a aplicação do keycloak
 - Criar o reml
 
 Em Clients:
