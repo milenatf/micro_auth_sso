@@ -1,6 +1,7 @@
 services:
   # image project
   micro_auth_sso:
+    container_name: micro_auth_sso
     build:
       args:
         user: milena
@@ -14,13 +15,13 @@ services:
     #   - micro_auth_redis
     networks:
       - micro_auth_sso_network
-      - shared_network
 
   # nginx
   micro_auth_sso_nginx:
     image: nginx:alpine
+    container_name: nginx_micro_auth_sso
     ports:
-      - "8081:80"
+      - "8083:80"
     volumes:
       - ./:/var/www
       - ./docker/nginx/:/etc/nginx/conf.d/
@@ -31,6 +32,7 @@ services:
   db_micro_auth_sso:
     image: mysql:8.0
     platform: linux/x86_64
+    container_name: db_micro_auth_sso
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-laravel}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
@@ -39,7 +41,7 @@ services:
     volumes:
       - ./.docker/mysql/dbdata:/var/lib/mysql
     ports:
-      - "3301:3306"
+      - "3303:3306"
     networks:
       - micro_auth_sso_network
 
@@ -71,5 +73,4 @@ services:
 networks:
   micro_auth_sso_network:
     driver: bridge
-  shared_network:
-    external: true
+    name: micro_auth_sso_network
