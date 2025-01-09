@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -26,15 +27,65 @@ Route::get('/auth/{provider}/callback', function (string $provider) {
         'provider_avatar' => $providerUser->avatar,
         'provider_token' => $providerUser->token,
         'provider_refresh_token' => $providerUser->refreshToken,
+        'id_token' => $providerUser->accessTokenResponseBody['id_token'] ?? null
     ]);
 
     Auth::login($user);
 
-    return redirect('/logged');
+    return redirect('/me');
 });
 
-Route::get('/logged', function() {
+Route::get('/me', function() {
 
-    dd(Auth::user());
+    $user = Auth::user();
 
+    return response()->json([
+        "id" => $user->id,
+        "name" => $user->name,
+        "email" => $user->email,
+        "email_verified_at" => $user->email_verified_at,
+        "password" => $user->password,
+        "provider_id" => $user->provider_id,
+        "provider_name" => $user->provider_name,
+        "provider_nickname" => $user->provider_nickname,
+        "provider_avatar" => $user->provider_avatar,
+        "id_token" => $user->id_token,
+        "provider_token" => $user->provider_token,
+        "provider_refresh_token" => $user->provider_refresh_token,
+        "remember_token" => $user->remember_token,
+    ], 200);
+
+});
+
+Route::get('/logout', function () {
+
+    $realm = config('services.keycloak.realms');
+    $keycloakBaseUrl = config('services.keycloak.base_url');
+
+    // URL for logging out of Keycloak
+    $keycloakLogoutUrl = "{$keycloakBaseUrl}/realms/{$realm}/protocol/openid-connect/logout";
+
+    // Recuperar o token de ID do usuário autenticado
+    $idToken = Auth::user()->id_token; // Ajuste conforme o local de armazenamento do token
+
+    // Fazer a requisição de logout
+    $response = Http::asForm()->post($keycloakLogoutUrl, [
+        'id_token_hint' => $idToken, // Token de ID do usuário autenticado
+    ]);
+
+    // Verificar se o logout foi bem-sucedido
+    if ($response->successful()) {
+        // dd("hasoudhahsdso");
+        // Realizar logout local no Laravel
+        Auth::logout();
+
+        // Redirecionar para a página inicial
+        return redirect('/');
+    }
+
+    // Caso ocorra erro, retornar com mensagem de erro
+    return response()->json([
+        'message' => 'Logout no Keycloak falhou.',
+        'error' => $response->body(),
+    ], 500);
 });

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('provider_name')->nullable();
             $table->string('provider_nickname')->nullable();
             $table->string('provider_avatar')->nullable();
+            $table->text('id_token')->nullable();
             $table->text('provider_token')->nullable();
             $table->text('provider_refresh_token')->nullable();
             $table->rememberToken();
