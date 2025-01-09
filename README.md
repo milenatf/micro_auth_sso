@@ -36,6 +36,14 @@ Atribuir os valores às variáveis de ambiente no .env
 >
 > DB_PASSWORD=123
 
+Para ambiente windows
+Alterer o /etc/hosts ou C:\Windows\System32\drivers\etc\hosts
+```
+127.0.0.1 host.docker.internal
+```
+No .env
+> KEYCLOAK_BASE_URL="http://host.docker.internal:8082"
+
 ### Executar a aplicação
 ```sh
 docker compose up -d --build
@@ -70,3 +78,19 @@ php artisan migrate
 
 Acessar a aplicação
 > http://localhost:8083
+
+## Configurações iniciais no keycloak
+
+⚠️ Estas configurações devem ser aplicadas de acordo com a realidade do projeto
+
+- Criar o reml
+
+Em Clients:
+- Definir o client Id: confidential-client (ou qualquer outro nome)
+- Name: confidential-client (ou qualquer outro nome)
+- Root URL: A URL da aplicação de autenticação, neste caso é: http://localhost:8083
+- Valid redirect URL: http://localhost:8083/auth/keycloak/callback
+- Web origins: http://localhost:8083
+- Admin URL: http://localhost:8083
+
+
